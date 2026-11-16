@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="toolbar">
+        <nav class="filters">
+            <a href="?" class="{% if not active %}on{% endif %}">All</a>
+            <a href="?paved=1" class="{% if active.paved %}on{% endif %}">Paved</a>
+            <a href="?dogs=1" class="{% if active.dogs %}on{% endif %}">Dog-friendly</a>
+            <a href="?stroller=1" class="{% if active.stroller %}on{% endif %}">Stroller / wheelchair</a>
+        </nav>
+        <div class="legend">
+            <span class="key"><span class="dot green"></span>Clear</span>
+            <span class="key"><span class="dot yellow"></span>Caution</span>
+            <span class="key"><span class="dot red"></span>Blocked</span>
+            <span class="key"><span class="dot gray"></span>No reports</span>
+        </div>
+    </div>
+    <div id="map"></div>
+    {{ segments|json_script:"segments-data" }}
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'map.js' %}"></script>
+{% endblock %}

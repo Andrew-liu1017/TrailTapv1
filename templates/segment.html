@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ segment.name }}{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>{{ segment.name }}</h1>
+    {% if current %}
+        <p class="status {{ current.color }}">
+            {{ current.get_condition_display }} · reported {{ current.created_at|timesince }} ago
+        </p>
+
+        {% if current.condition != "clear" %}
+            <div class="row">
+                <form method="post" action="{% url 'report_action' current.id 'still' %}">
+                    {% csrf_token %}
+                    <button>Still there</button></form>
+                <form method="post" action="{% url 'report_action' current.id 'fixed' %}">
+                    {% csrf_token %}
+                    <button>Fixed</button></form>
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="status gray">No recent reports</p>
+    {% endif %}
+    <h2>Report a condition</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="conditions">
+            {% for choice in form.condition %}
+                <label>{{ choice.tag }} {{ choice.choice_label }}</label>
+            {% endfor %}
+        </div>
+        {{ form.note }}
+        <label class="photo">Photo (optional) {{ form.photo }}</label>
+        <button class="primary">Submit report</button>
+    </form>
+
+    <h2>Recent reports</h2>
+    <ul>
+        {% for r in recent %}
+            <li>
+                {{ r.get_condition_display }} · {{ r.created_at|timesince }} ago
+                {% if r.note %}
+                   - {{ r.note }}
+                {% endif %}
+
+                {% if r.photo %}
+                    <br>
+                    <img src="{{ r.photo.url }}" alt="Report photo">
+                {% endif %}
+            </li>
+
+        {% empty %}
+            <li>No reports yet.</li>
+        {% endfor %}
+
+    </ul>
+    <p>
+        <a href="{% url 'map' %}">← Back to map</a>
+    </p>
+</section>
+{% endblock %}
+
