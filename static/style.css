@@ -44,3 +44,7 @@ input[type=text] { width: 100%; min-height: 44px; padding: 8px; font: inherit; f
 .panel ul { list-style: none; padding: 0; }
 .panel li { padding: 8px 0; border-bottom: 1px solid #e2e2e2; }
 img { max-width: 100%; }
+
+.locate-btn { display: flex !important; align-items: center; justify-content: center; color: #333; }
+.locate-btn:hover { color: #1e88e5; }
+.locate-btn.active { color: #1e88e5; background: #e3f2fd !important; }
