@@ -4,6 +4,9 @@
 body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: #222; line-height: 1.4; }
 header { padding: 10px 16px; background: #1b4332; }
 header a { color: #fff; font-weight: bold; text-decoration: none; }
+.credit { padding: 8px 16px; background: linear-gradient(90deg, #1b4332, #2d6a4f); color: #d8f3dc; font-size: 15px; text-align: center; letter-spacing: 0.3px; }
+.credit a { color: #ffd166; font-weight: 800; font-size: 17px; text-decoration: none; border-bottom: 2px solid #ffd166; padding-bottom: 1px; transition: color .2s, border-color .2s; }
+.credit a:hover { color: #fff; border-color: #fff; }
 
 .toolbar, .filters, .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .toolbar { justify-content: space-between; padding: 6px 12px; font-size: 13px; border-bottom: 1px solid #ddd; }
@@ -15,7 +18,7 @@ header a { color: #fff; font-weight: bold; text-decoration: none; }
 .dot.red { background: var(--red); }
 .dot.gray { background: var(--gray); }
 
-#map { height: calc(100vh - 90px); }
+#map { height: calc(100vh - 130px); }
 
 .panel { max-width: 640px; margin: 0 auto; padding: 20px 16px; }
 
