@@ -19,9 +19,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-local-dev-only")
 
-DEBUG = True
+# Local: debug on. PythonAnywhere sets DJANGO_DEBUG=0 in its WSGI file.
+DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "andrewliu1017.pythonanywhere.com"]
 
 
 
