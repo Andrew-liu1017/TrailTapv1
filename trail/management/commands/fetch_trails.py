@@ -1,40 +1,35 @@
 import json
-import ssl
-import urllib.parse
-import urllib.request
 from collections import defaultdict
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
+from trail import osm
 from trail.models import Trail, Segment
 
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-
-# Toledo / Perrysburg area: south, west, north, east
-DEFAULT_BBOX = "41.45,-83.95,41.78,-83.40"
-
 PAVED = {"asphalt", "paved", "concrete", "paving_stones", "concrete:plates"}
-
-QUERY = """
-[out:json][timeout:90];
-way["highway"~"^(path|footway|track|cycleway|bridleway)$"]
-   ["name"~"Trail|Loop|Path|Greenway|Towpath",i]({bbox});
-out tags geom;
-"""
 
 
 class Command(BaseCommand):
     help = "Fetch named trails from OpenStreetMap (Overpass API) and add new ones"
 
     def add_arguments(self, parser):
-        parser.add_argument("--bbox", default=DEFAULT_BBOX,
+        parser.add_argument("--bbox", default=osm.DEFAULT_BBOX,
                             help="south,west,north,east")
+        parser.add_argument("--from-file",
+                            help="read trails from a saved JSON file instead of the API")
         parser.add_argument("--dry-run", action="store_true",
                             help="show what would be added without saving")
 
     def handle(self, *args, **opts):
-        ways = self.fetch(opts["bbox"])
+        if opts["from_file"]:
+            with open(opts["from_file"], encoding="utf-8") as f:
+                ways = json.load(f)
+        else:
+            try:
+                ways = osm.fetch(opts["bbox"])
+            except Exception as e:
+                raise CommandError(f"Could not reach Overpass API: {e}")
 
         by_name = defaultdict(list)
         for way in ways:
@@ -67,18 +62,3 @@ class Command(BaseCommand):
                                        geometry={"type": "LineString", "coordinates": coords})
 
         self.stdout.write(self.style.SUCCESS(f"Done. {added} new trail(s)."))
-
-    def fetch(self, bbox):
-        data = urllib.parse.urlencode({"data": QUERY.format(bbox=bbox)}).encode()
-        req = urllib.request.Request(OVERPASS_URL, data=data,
-                                     headers={"User-Agent": "TrailTap/1.0"})
-        try:
-            try:
-                import certifi
-                ctx = ssl.create_default_context(cafile=certifi.where())
-            except ImportError:
-                ctx = ssl.create_default_context()
-            with urllib.request.urlopen(req, timeout=120, context=ctx) as resp:
-                return json.load(resp)["elements"]
-        except Exception as e:
-            raise CommandError(f"Could not reach Overpass API: {e}")
