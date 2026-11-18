@@ -116,3 +116,6 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# Nightly trail data from GitHub Actions can be a few MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024

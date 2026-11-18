@@ -1,4 +1,11 @@
+import hmac
+import json
+import os
 from datetime import timedelta
+from django.http import HttpResponseForbidden, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .importer import import_ways
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -59,3 +66,16 @@ def report_action(request, pk, action):
         report.save()
         Report.objects.create(segment=report.segment, condition="clear")
     return redirect("segment", pk=report.segment_id)
+
+
+@csrf_exempt
+@require_POST
+def sync_trails(request):
+    """GitHub Actions posts fresh OpenStreetMap trail data here each night."""
+    expected = os.environ.get("TRAIL_SYNC_TOKEN", "")
+    given = request.headers.get("Authorization", "").removeprefix("Bearer ")
+    if not expected or not hmac.compare_digest(given, expected):
+        return HttpResponseForbidden("bad token")
+    ways = json.loads(request.body)
+    added = import_ways(ways, log=lambda msg: None)
+    return JsonResponse({"added": added})

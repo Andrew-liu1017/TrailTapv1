@@ -25,3 +25,12 @@ jobs:
           git add data/osm_trails.json
           git diff --cached --quiet || git commit -m "Update trail data from OpenStreetMap"
           git push
+      - name: Send trails to the live site
+        env:
+          TRAIL_SYNC_TOKEN: ${{ secrets.TRAIL_SYNC_TOKEN }}
+        run: |
+          curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer $TRAIL_SYNC_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-binary @data/osm_trails.json \
+            https://andrewliu1017.pythonanywhere.com/sync-trails/
